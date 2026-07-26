@@ -18,6 +18,22 @@ tofu apply
 
 This creates a Kind cluster named `local` (context `kind-local`) and writes a kubeconfig to `./.kubeconfig`.
 
+## Local port-forward map
+
+When accessing services from your machine, use these localhost ports to avoid collisions between stacks:
+
+| Service | Namespace | Port-forward | URL / address |
+|---------|-----------|--------------|---------------|
+| MongoDB | `mongodb` | `27017:27017` | `mongodb://localhost:27017` |
+| Mongo Express | `mongodb` | `8080:8081` | `http://localhost:8080` |
+| Debezium Connect | `debezium` | `8081:8083` | `http://localhost:8081` |
+| Kafka | `kafka` | `8082:9094` | `localhost:8082` |
+| Pulsar | `pulsar` | `8083:8080` | `http://localhost:8083` |
+| Flink | `flink` | `8084:8081` | `http://localhost:8084` |
+| Trino | `trino` | `8085:8080` | `http://localhost:8085` |
+
+OpenTofu apply-time health checks use the same localhost ports as above.
+
 ## Verify
 
 ```bash
