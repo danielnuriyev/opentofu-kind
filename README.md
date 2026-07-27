@@ -31,6 +31,8 @@ When accessing services from your machine, use these localhost ports to avoid co
 | Pulsar | `pulsar` | `8083:8080` | `http://localhost:8083` |
 | Flink | `flink` | `8084:8081` | `http://localhost:8084` |
 | Trino | `trino` | `8085:8080` | `http://localhost:8085` |
+| MinIO API | `minio` | `9000:9000` | `http://localhost:9000` |
+| MinIO console | `minio` | `9001:9001` | `http://localhost:9001` |
 
 OpenTofu apply-time health checks use the same localhost ports as above.
 
