@@ -16,7 +16,13 @@ tofu init
 tofu apply
 ```
 
-This creates a Kind cluster named `local` (context `kind-local`) and writes a kubeconfig to `./.kubeconfig`.
+This creates a Kind cluster named `local` (context `kind-local`) with **4 nodes** (1 control-plane + 3 workers). Each node is limited to **4 GiB memory** and **2 CPUs** via Docker. A kubeconfig is written to `./.kubeconfig`.
+
+To apply node-count changes, recreate the cluster:
+
+```bash
+tofu apply -replace=null_resource.kind_cluster
+```
 
 ## Local port-forward map
 
@@ -33,6 +39,8 @@ When accessing services from your machine, use these localhost ports to avoid co
 | Trino | `trino` | `8085:8080` | `http://localhost:8085` |
 | MinIO API | `minio` | `9000:9000` | `http://localhost:9000` |
 | MinIO console | `minio` | `9001:9001` | `http://localhost:9001` |
+| Grafana | `monitoring` | `3000:80` | `http://localhost:3000` |
+| Prometheus | `monitoring` | `9090:9090` | `http://localhost:9090` |
 
 OpenTofu apply-time health checks use the same localhost ports as above.
 

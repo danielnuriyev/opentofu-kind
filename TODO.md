@@ -1,1 +1,1 @@
-- Install Prometheus + Grafana
+- Prometheus + Grafana: see [opentofu-monitoring](../opentofu-monitoring)

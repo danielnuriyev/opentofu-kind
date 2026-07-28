@@ -18,21 +18,55 @@ locals {
   cluster_name   = "local"
   kubeconfig     = "${path.module}/.kubeconfig"
   default_config = "${pathexpand("~")}/.kube/config"
+  node_count     = 3
+  node_memory    = "4g"
+  node_cpus      = "2"
 }
 
 resource "null_resource" "kind_cluster" {
   triggers = {
     cluster_name   = local.cluster_name
     default_config = local.default_config
+    node_count     = local.node_count
+    node_memory    = local.node_memory
+    node_cpus      = local.node_cpus
   }
 
   provisioner "local-exec" {
     command = <<-EOT
       set -euo pipefail
 
+      apply_node_limits() {
+        for name in $(docker ps --format '{{.Names}}' | grep "^${local.cluster_name}-" || true); do
+          docker update \
+            --memory="${local.node_memory}" \
+            --memory-swap="${local.node_memory}" \
+            --cpus="${local.node_cpus}" \
+            "$name"
+        done
+      }
+
       if ! kind get clusters 2>/dev/null | grep -qx "${local.cluster_name}"; then
-        kind create cluster --name "${local.cluster_name}" --wait 120s
+        cat <<EOF > /tmp/${local.cluster_name}-config.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: ${local.cluster_name}
+
+nodes:
+- role: control-plane
+  image: kindest/node:v1.31.0
+EOF
+        for _ in $(seq 1 ${local.node_count}); do
+          cat <<EOF >> /tmp/${local.cluster_name}-config.yaml
+- role: worker
+  image: kindest/node:v1.31.0
+EOF
+        done
+        kind create cluster --name "${local.cluster_name}" --config /tmp/${local.cluster_name}-config.yaml --wait 120s
+        rm -f /tmp/${local.cluster_name}-config.yaml
       fi
+
+      apply_node_limits
 
       kind export kubeconfig --name "${local.cluster_name}" --kubeconfig "${local.kubeconfig}"
 
